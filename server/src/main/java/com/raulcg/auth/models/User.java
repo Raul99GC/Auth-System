@@ -48,7 +48,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
@@ -81,5 +80,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id") // columna que referencia a Role
     )
     private Set<Role> roles = new HashSet<>();
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
 }
