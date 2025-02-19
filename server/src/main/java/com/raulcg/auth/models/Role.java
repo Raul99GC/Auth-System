@@ -32,4 +32,8 @@ public class Role {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
+
+    public Role(UserRole roleName) {
+        this.name = roleName;
+    }
 }
