@@ -8,11 +8,9 @@ import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.utils.PasswordService;
 import com.raulcg.auth.utils.UserSecretGenerator;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,20 +19,20 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final PasswordService passwordService;
+    private final PasswordEncoder passwordEncoder;
     private final UserSecretGenerator userSecretGenerator;
 
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordService passwordService, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.passwordService = passwordService;
+        this.passwordEncoder = passwordEncoder;
         this.userSecretGenerator = userSecretGenerator;
     }
 
     @Override
     public User RegisterUser(CreateUserRequire user) {
-        String encodePassword = passwordService.encode(user.getPassword());
+        String encodePassword = passwordEncoder.encode(user.getPassword());
         User newUser = new User(user.getUsername(), user.getEmail(), encodePassword);
         newUser.setAccountNonLocked(true);
         newUser.setEnabled(true);
@@ -55,6 +53,5 @@ public class UserService implements IUserService {
     public boolean existUserByEmail(String mail) {
         return userRepository.existsByEmail(mail);
     }
-
 
 }
