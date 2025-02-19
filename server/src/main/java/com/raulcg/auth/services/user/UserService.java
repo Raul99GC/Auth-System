@@ -45,6 +45,11 @@ public class UserService implements IUserService {
         return newUser;
     }
 
+    @Override
+    public boolean existUserByEmail(String mail) {
+        return userRepository.existsByEmail(mail);
+    }
+
     public String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
