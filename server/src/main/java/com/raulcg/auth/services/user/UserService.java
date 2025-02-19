@@ -6,7 +6,6 @@ import com.raulcg.auth.models.User;
 import com.raulcg.auth.repositories.RoleRepository;
 import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
-import com.raulcg.auth.utils.PasswordService;
 import com.raulcg.auth.utils.UserSecretGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,8 +21,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final UserSecretGenerator userSecretGenerator;
 
-
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordService passwordService, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
