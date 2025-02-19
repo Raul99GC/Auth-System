@@ -39,12 +39,17 @@ public class UserService implements IUserService {
         newUser.setUserSecret(userSecret);
 
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByRole(UserRole.USER).orElseThrow());
+        roles.add(roleRepository.findByName(UserRole.USER).orElseThrow());
         newUser.setRoles(roles);
 
         userRepository.save(newUser);
 
         return newUser;
+    }
+
+    @Override
+    public User createUser(User user) {
+        return userRepository.save(user);
     }
 
     @Override
