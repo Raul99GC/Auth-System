@@ -5,4 +5,6 @@ import com.raulcg.auth.requires.CreateUserRequire;
 
 public interface IUserService {
     User RegisterUser(CreateUserRequire user);
+
+    boolean existUserByEmail(String mail);
 }
