@@ -1,17 +1,25 @@
 package com.raulcg.auth.services.user;
 
 import com.raulcg.auth.enums.UserRole;
+import com.raulcg.auth.exceptions.EmailAlreadyExistException;
+import com.raulcg.auth.exceptions.RoleNotFoundException;
+import com.raulcg.auth.exceptions.UsernameAlreadyExistException;
 import com.raulcg.auth.models.Role;
 import com.raulcg.auth.models.User;
 import com.raulcg.auth.repositories.RoleRepository;
 import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
+import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
+import com.raulcg.auth.services.email.EmailService;
+import com.raulcg.auth.utils.AuthTokenGenerator;
 import com.raulcg.auth.utils.UserSecretGenerator;
+import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
 
 @Service
 public class UserService implements IUserService {
@@ -20,34 +28,68 @@ public class UserService implements IUserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserSecretGenerator userSecretGenerator;
+    private final AuthTokenGenerator authTokenGenerator;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder) {
+    private final IAccountValidationTokenService accountValidationTokenService;
+
+
+    private EmailService emailService;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder, AuthTokenGenerator authTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userSecretGenerator = userSecretGenerator;
+        this.authTokenGenerator = authTokenGenerator;
+        this.accountValidationTokenService = accountValidationTokenService;
+    }
+
+    @Autowired(required = false)
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
     }
 
     @Override
+    @Transactional
     public User RegisterUser(CreateUserRequire user) {
+        isUserExist(user);
+
         String encodePassword = passwordEncoder.encode(user.getPassword());
-        User newUser = new User(user.getUsername(), user.getEmail(), encodePassword);
-        newUser.setAccountNonLocked(true);
-        newUser.setEnabled(true);
-
         String userSecret = userSecretGenerator.generate();
+        Role defaultRole = roleRepository.findByName(UserRole.USER)
+                .orElseThrow(() -> new RoleNotFoundException("Default role not found"));
+
+        User newUser = new User(user.getUsername(), user.getEmail(), encodePassword);
+        newUser.setFirstName(user.getFirstName());
+        newUser.setLastName(user.getLastName());
         newUser.setUserSecret(userSecret);
+        newUser.setRoles(Collections.singleton(defaultRole));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByName(UserRole.USER).orElseThrow());
-        newUser.setRoles(roles);
+        User savedUser = userRepository.save(newUser);
 
-        userRepository.save(newUser);
+        String token = authTokenGenerator.generateToken();
+        accountValidationTokenService.createToken(savedUser, token);
 
-        return newUser;
+        if (emailService != null) {
+            try {
+                emailService.sendConfirmationEmail(newUser.getEmail(), savedUser.getUsername(), token);
+            } catch (MessagingException e) {
+                throw new EmailAlreadyExistException("Email already exist");
+            }
+        }
+        return savedUser;
+    }
+
+    private void isUserExist(CreateUserRequire user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new UsernameAlreadyExistException("Username already exist");
+        } else if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EmailAlreadyExistException("Email already exist");
+        }
     }
 
     @Override
+    @Transactional
     public User createUser(User user) {
         return userRepository.save(user);
     }
