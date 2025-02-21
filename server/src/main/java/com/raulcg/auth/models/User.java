@@ -3,10 +3,7 @@ package com.raulcg.auth.models;
 import com.fasterxml.jackson.annotation.*;
 import com.raulcg.auth.enums.Providers;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,12 +18,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-// Esta anotación permite que Jackson maneje referencias circulares usando el "id"
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
 
     @Id
