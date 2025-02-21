@@ -25,6 +25,9 @@ public class AccountValidationToken {
 
     private String token;
 
+    @Column(nullable = false)
+    private boolean used= false;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
