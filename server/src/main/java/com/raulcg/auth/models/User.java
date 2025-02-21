@@ -1,9 +1,6 @@
 package com.raulcg.auth.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.raulcg.auth.enums.Providers;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +31,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -50,14 +48,14 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String userSecret;
 
     @Column(name = "account_non_locked", nullable = false)
-    private boolean accountNonLocked = true;
+    private boolean accountNonLocked = false;
 
     @Column(length = 20)
     private Providers provider;
@@ -78,6 +76,11 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id") // columna que referencia a Role
     )
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Column(nullable = true)
+    private Set<AccountValidationToken> accountValidationTokens = new HashSet<>();
 
     public User(String username, String email, String password) {
         this.username = username;
