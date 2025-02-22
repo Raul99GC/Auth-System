@@ -13,7 +13,6 @@ import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenSe
 import com.raulcg.auth.services.email.EmailService;
 import com.raulcg.auth.utils.AuthTokenGenerator;
 import com.raulcg.auth.utils.UserSecretGenerator;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,11 +70,7 @@ public class UserService implements IUserService {
         accountValidationTokenService.createToken(savedUser, token);
 
         if (emailService != null) {
-            try {
-                emailService.sendConfirmationEmail(newUser.getEmail(), savedUser.getUsername(), token);
-            } catch (MessagingException e) {
-                throw new EmailAlreadyExistException("Email already exist");
-            }
+            emailService.sendConfirmationEmail(user.getEmail(), user.getUsername(), token);
         }
         return savedUser;
     }
