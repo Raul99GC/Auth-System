@@ -8,4 +8,6 @@ public interface IAccountValidationTokenService {
     AccountValidationToken createToken(User user, String token);
 
     boolean validateToken(ActivateAccountRequest request);
+
+    boolean sendNewToken(String email);
 }
