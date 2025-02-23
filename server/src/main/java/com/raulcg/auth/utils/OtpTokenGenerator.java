@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.security.SecureRandom;
 
 @Component
-public class AuthTokenGenerator {
+public class OtpTokenGenerator {
     // Puedes ajustar el conjunto de caracteres según tus necesidades.
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int TOKEN_LENGTH = 6;
