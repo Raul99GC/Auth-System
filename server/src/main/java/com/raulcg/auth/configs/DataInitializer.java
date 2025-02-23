@@ -5,7 +5,7 @@ import com.raulcg.auth.models.Role;
 import com.raulcg.auth.models.User;
 import com.raulcg.auth.repositories.RoleRepository;
 import com.raulcg.auth.services.user.IUserService;
-import com.raulcg.auth.utils.UserSecretGenerator;
+import com.raulcg.auth.utils.SecureTokensGenerator;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,13 +20,13 @@ public class DataInitializer {
     private final IUserService userService;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserSecretGenerator userSecretGenerator;
+    private final SecureTokensGenerator secureTokensGenerator;
 
-    public DataInitializer(IUserService userService, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserSecretGenerator userSecretGenerator) {
+    public DataInitializer(IUserService userService, RoleRepository roleRepository, PasswordEncoder passwordEncoder, SecureTokensGenerator secureTokensGenerator) {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userSecretGenerator = userSecretGenerator;
+        this.secureTokensGenerator = secureTokensGenerator;
     }
 
     @PostConstruct
@@ -50,7 +50,7 @@ public class DataInitializer {
             user.setRoles(roles);
             user.setAccountNonLocked(true);
             user.setEnabled(true);
-            user.setUserSecret(userSecretGenerator.generate());
+            user.setUserSecret(secureTokensGenerator.generateUserSecret());
 
             userService.createUser(user);
         }
