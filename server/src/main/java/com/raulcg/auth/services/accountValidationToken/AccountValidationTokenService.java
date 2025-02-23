@@ -7,7 +7,7 @@ import com.raulcg.auth.repositories.AccountValidationTokenRepository;
 import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.ActivateAccountRequest;
 import com.raulcg.auth.services.email.EmailService;
-import com.raulcg.auth.utils.AuthTokenGenerator;
+import com.raulcg.auth.utils.OtpTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,16 +21,16 @@ public class AccountValidationTokenService implements IAccountValidationTokenSer
     private final AccountValidationTokenRepository accountValidationTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final AuthTokenGenerator authTokenGenerator;
+    private final OtpTokenGenerator otpTokenGenerator;
 
     private EmailService emailService;
 
 
-    public AccountValidationTokenService(AccountValidationTokenRepository accountValidationTokenRepository, PasswordEncoder passwordEncoder, UserRepository userRepository, AuthTokenGenerator authTokenGenerator) {
+    public AccountValidationTokenService(AccountValidationTokenRepository accountValidationTokenRepository, PasswordEncoder passwordEncoder, UserRepository userRepository, OtpTokenGenerator otpTokenGenerator) {
         this.accountValidationTokenRepository = accountValidationTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
-        this.authTokenGenerator = authTokenGenerator;
+        this.otpTokenGenerator = otpTokenGenerator;
     }
 
     @Autowired(required = false)
@@ -79,7 +79,7 @@ public class AccountValidationTokenService implements IAccountValidationTokenSer
             return false;
         }
 
-        String token = authTokenGenerator.generateToken();
+        String token = otpTokenGenerator.generateToken();
         AccountValidationToken tokenSaved = new AccountValidationToken(passwordEncoder.encode(token), user);
         tokenSaved.setExpiryDate(LocalDateTime.now().plusMinutes(5));
         accountValidationTokenRepository.save(tokenSaved);

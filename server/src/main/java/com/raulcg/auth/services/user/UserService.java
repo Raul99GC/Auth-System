@@ -11,7 +11,7 @@ import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
 import com.raulcg.auth.services.email.EmailService;
-import com.raulcg.auth.utils.AuthTokenGenerator;
+import com.raulcg.auth.utils.OtpTokenGenerator;
 import com.raulcg.auth.utils.SecureTokensGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,19 +27,19 @@ public class UserService implements IUserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final SecureTokensGenerator secureTokensGenerator;
-    private final AuthTokenGenerator authTokenGenerator;
+    private final OtpTokenGenerator otpTokenGenerator;
 
     private final IAccountValidationTokenService accountValidationTokenService;
 
 
     private EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, SecureTokensGenerator secureTokensGenerator, PasswordEncoder passwordEncoder, AuthTokenGenerator authTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, SecureTokensGenerator secureTokensGenerator, PasswordEncoder passwordEncoder, OtpTokenGenerator otpTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.secureTokensGenerator = secureTokensGenerator;
-        this.authTokenGenerator = authTokenGenerator;
+        this.otpTokenGenerator = otpTokenGenerator;
         this.accountValidationTokenService = accountValidationTokenService;
     }
 
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(newUser);
 
-        String token = authTokenGenerator.generateToken();
+        String token = otpTokenGenerator.generateToken();
         accountValidationTokenService.createToken(savedUser, token);
 
         if (emailService != null) {
