@@ -12,7 +12,7 @@ import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
 import com.raulcg.auth.services.email.EmailService;
 import com.raulcg.auth.utils.AuthTokenGenerator;
-import com.raulcg.auth.utils.UserSecretGenerator;
+import com.raulcg.auth.utils.SecureTokensGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserSecretGenerator userSecretGenerator;
+    private final SecureTokensGenerator secureTokensGenerator;
     private final AuthTokenGenerator authTokenGenerator;
 
     private final IAccountValidationTokenService accountValidationTokenService;
@@ -34,11 +34,11 @@ public class UserService implements IUserService {
 
     private EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, UserSecretGenerator userSecretGenerator, PasswordEncoder passwordEncoder, AuthTokenGenerator authTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, SecureTokensGenerator secureTokensGenerator, PasswordEncoder passwordEncoder, AuthTokenGenerator authTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userSecretGenerator = userSecretGenerator;
+        this.secureTokensGenerator = secureTokensGenerator;
         this.authTokenGenerator = authTokenGenerator;
         this.accountValidationTokenService = accountValidationTokenService;
     }
@@ -54,7 +54,7 @@ public class UserService implements IUserService {
         isUserExist(user);
 
         String encodePassword = passwordEncoder.encode(user.getPassword());
-        String userSecret = userSecretGenerator.generate();
+        String userSecret = secureTokensGenerator.generateUserSecret();
         Role defaultRole = roleRepository.findByName(UserRole.USER)
                 .orElseThrow(() -> new RoleNotFoundException("Default role not found"));
 
