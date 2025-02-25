@@ -4,6 +4,7 @@ import com.raulcg.auth.models.User;
 import com.raulcg.auth.requires.CreateUserRequire;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface IUserService {
     User RegisterUser(CreateUserRequire user);
@@ -14,5 +15,5 @@ public interface IUserService {
 
     Optional<User> findByEmail(String email);
 
-    String getUserSecret(String email);
+    String getUserSecret(UUID userId);
 }
