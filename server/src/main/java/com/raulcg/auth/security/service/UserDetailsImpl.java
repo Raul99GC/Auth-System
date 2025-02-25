@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -46,7 +47,10 @@ public class UserDetailsImpl implements UserDetails {
 
 
     public static UserDetailsImpl build(User user) {
-        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRoles().toString());
+        List<GrantedAuthority> authorities = user.getRoles()
+                .stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
 
         return new UserDetailsImpl(
                 user.getId(),
@@ -57,7 +61,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 user.getUserSecret(),
                 user.getProvider(),
-                List.of(authority)
+                authorities
         );
     }
 
