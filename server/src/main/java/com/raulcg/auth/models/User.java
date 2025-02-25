@@ -75,11 +75,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Column(nullable = true)
+    @JsonIgnore
     private Set<AccountValidationToken> accountValidationTokens = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     @Column(nullable = true)
+    @JsonIgnore
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
     public User(String username, String email, String password) {
