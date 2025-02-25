@@ -80,7 +80,7 @@ public class AuthController {
 
         RefreshToken refreshToken = refreshTokenService.createToken(userOptional.get(), 60 * 60 * 24 * 7); // Expira en 7 dias
 
-        Cookie tokenCookie = new Cookie("token", jwt);
+        Cookie tokenCookie = new Cookie("jwtToken", jwt);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setSecure(true);
         tokenCookie.setPath("/");
@@ -137,6 +137,28 @@ public class AuthController {
         response.setMessage("You are logged in.");
         response.setData(user.get());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<GenericResponse<?>> logout(HttpServletResponse response) {
+        SecurityContextHolder.clearContext();
+
+        Cookie cookie = new Cookie("jwtToken", "");
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        Cookie refreshTokenCookie = new Cookie("jwtToken", "");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+        response.addCookie(refreshTokenCookie);
+
+
+        return ResponseEntity.ok(new GenericResponse<>(null, "Logged out successfully", true));
     }
 
 }
