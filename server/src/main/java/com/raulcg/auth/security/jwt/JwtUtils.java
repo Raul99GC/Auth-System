@@ -22,6 +22,9 @@ public class JwtUtils {
     @Value("${spring.app.jwtHeader}")
     private String jwtHeader;
 
+    @Value("${spring.app.jwtSecret}")
+    private String jwtSecret;
+
     private int jwtExpirationMs = 7200000;
 
     public String getJwtFromHeader(HttpServletRequest request) {
@@ -32,28 +35,28 @@ public class JwtUtils {
         return null;
     }
 
-    private SecretKey key(String jwtSecret) {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    private SecretKey key(String userSecret) {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(userSecret + this.jwtSecret));
     }
 
-    private Claims getClaimsFromToken(String token, String jwtSecret) {
+    private Claims getClaimsFromToken(String jwtToken, String userSecret) {
         return Jwts.parser()
-                .verifyWith(key(jwtSecret))
+                .verifyWith(key(userSecret))
                 .build()
-                .parseSignedClaims(token)
+                .parseSignedClaims(jwtToken)
                 .getPayload();
 
     }
 
-    public String getSubFromToken(String token, String jwtSecret) {
-        return String.valueOf(Objects.requireNonNull(getClaimsFromToken(token, token)).get("sub"));
+    public String getSubFromToken(String jwtToken, String userSecret) {
+        return String.valueOf(Objects.requireNonNull(getClaimsFromToken(jwtToken, userSecret)).get("sub"));
     }
 
-    public List<String> getAuthorities(String token, String jwtSecret) {
-        return getClaimsFromToken(token, jwtSecret).get("authorities", List.class);
+    public List<String> getAuthorities(String jwtToken, String userSecret) {
+        return getClaimsFromToken(jwtToken, userSecret).get("authorities", List.class);
     }
 
-    public String generateTokenFromUserDetails(UserDetailsImpl userDetails, String jwtSecret) {
+    public String generateTokenFromUserDetails(UserDetailsImpl userDetails) {
         String email = userDetails.getEmail();
         String username = userDetails.getUsername();
         List<String> authorities = userDetails.getAuthorities()
@@ -66,7 +69,7 @@ public class JwtUtils {
                 .claim("authorities", authorities)
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date((new java.util.Date().getTime() + jwtExpirationMs))) // 2 hrs
-                .signWith(key(jwtSecret));
+                .signWith(key(userDetails.getUserSecret()));
 
         if (email != null) token.claim("email", email);
 
@@ -83,9 +86,9 @@ public class JwtUtils {
         return header.get("kid").getAsString();
     }
 
-    public boolean validateToken(String authToken, String jwtSecret) {
+    public boolean validateToken(String jwtToken, String userSecret) {
         try {
-            Jwts.parser().verifyWith((SecretKey) key(jwtSecret)).build().parseSignedClaims(authToken);
+            Jwts.parser().verifyWith((SecretKey) key(userSecret)).build().parseSignedClaims(jwtToken);
             return true;
         } catch (MalformedJwtException e) {
             throw new IllegalArgumentException("Invalid JWT token", e);
