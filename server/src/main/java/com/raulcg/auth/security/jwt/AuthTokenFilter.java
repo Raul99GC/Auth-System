@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,7 +41,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String kid = jwtUtils.getKidFromToken(jwt);
 
                 // Utilizar el 'kid' para obtener el secreto asociado al usuario desde la BD
-                String userSecret = userService.getUserSecret(kid);
+                String userSecret = userService.getUserSecret(UUID.fromString(kid));
 
                 if (jwtUtils.validateToken(jwt, userSecret)) {
                     String sub = jwtUtils.getSubFromToken(jwt, userSecret);
