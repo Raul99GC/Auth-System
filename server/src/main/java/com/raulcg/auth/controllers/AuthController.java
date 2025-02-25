@@ -13,8 +13,10 @@ import com.raulcg.auth.security.service.UserDetailsImpl;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
 import com.raulcg.auth.services.refreshToken.IRefreshTokenService;
 import com.raulcg.auth.services.user.IUserService;
+import com.raulcg.auth.utils.AuthUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +37,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final IRefreshTokenService refreshTokenService;
+    private AuthUtils authUtils;
 
     public AuthController(IUserService userService, IAccountValidationTokenService accountValidationTokenService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, IRefreshTokenService refreshTokenService) {
         this.userService = userService;
@@ -42,6 +45,11 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.refreshTokenService = refreshTokenService;
+    }
+
+    @Autowired
+    public void setAuthUtils(AuthUtils authUtils) {
+        this.authUtils = authUtils;
     }
 
 
@@ -109,6 +117,26 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new GenericResponse<>(null, "Error sending token", false));
         }
         return ResponseEntity.ok(new GenericResponse<>(null, "Token sent successfully", true));
+    }
+
+    @GetMapping("/check-auth")
+    public ResponseEntity<GenericResponse<User>> checkAuth() {
+        if(authUtils == null) {
+            throw new IllegalStateException("Something went wrong");
+        }
+        Optional<User> user = authUtils.loggedInUser();
+        GenericResponse<User> response = new GenericResponse<>();
+
+        if (user.isEmpty()) {
+            response.setStatus(false);
+            response.setMessage("You are not logged in.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        response.setStatus(true);
+        response.setMessage("You are logged in.");
+        response.setData(user.get());
+        return ResponseEntity.ok(response);
     }
 
 }
