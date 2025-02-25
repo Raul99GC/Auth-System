@@ -3,6 +3,7 @@ package com.raulcg.auth.services.user;
 import com.raulcg.auth.enums.UserRole;
 import com.raulcg.auth.exceptions.EmailAlreadyExistException;
 import com.raulcg.auth.exceptions.RoleNotFoundException;
+import com.raulcg.auth.exceptions.UserNotFoundException;
 import com.raulcg.auth.exceptions.UsernameAlreadyExistException;
 import com.raulcg.auth.models.Role;
 import com.raulcg.auth.models.User;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -92,6 +94,17 @@ public class UserService implements IUserService {
     @Override
     public boolean existUserByEmail(String mail) {
         return userRepository.existsByEmail(mail);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public String getUserSecret(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getUserSecret();
     }
 
 }
