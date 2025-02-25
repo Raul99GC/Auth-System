@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -102,8 +103,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String getUserSecret(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+    public String getUserSecret(UUID userId) {
+        User user = userRepository.findById(userId) .orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.getUserSecret();
     }
 
