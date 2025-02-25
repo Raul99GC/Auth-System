@@ -68,7 +68,7 @@ public class AuthController {
         // Get the user details
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String jwt = jwtUtils.generateTokenFromUserDetails(userDetails, userOptional.get().getUserSecret());
+        String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
 
         RefreshToken refreshToken = refreshTokenService.createToken(userOptional.get(), 60 * 60 * 24 * 7); // Expira en 7 dias
 
