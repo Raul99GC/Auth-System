@@ -91,8 +91,10 @@ public class AuthController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(60 * 60 * 2); // Expira en 2 hora
+        refreshTokenCookie.setMaxAge(60 * 60 * 2 * 7); // 7 dias
+
         response.addCookie(tokenCookie);
+        response.addCookie(refreshTokenCookie);
 
         LoginResponse responseBody = new LoginResponse(jwt, refreshToken.getToken());
         responseBody.setMessage("Logged in successfully!");
