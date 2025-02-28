@@ -15,6 +15,7 @@ public class LoginResponse {
     private String refreshToken;
     boolean status;
     String message;
+    UserResponse user;
 
     public LoginResponse(String jwtToken, String refreshToken) {
         this.jwtToken = jwtToken;
