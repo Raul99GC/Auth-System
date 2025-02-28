@@ -1,10 +1,12 @@
 package com.raulcg.auth.controllers;
 
+import com.raulcg.auth.mapper.UserMapper;
 import com.raulcg.auth.models.RefreshToken;
 import com.raulcg.auth.models.User;
 import com.raulcg.auth.requires.ActivateAccountRequest;
 import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.requires.LoginRequest;
+import com.raulcg.auth.response.CheckAuthResponse;
 import com.raulcg.auth.response.GenericResponse;
 import com.raulcg.auth.response.LoginResponse;
 import com.raulcg.auth.response.SignupResponse;
@@ -98,6 +100,7 @@ public class AuthController {
 
         LoginResponse responseBody = new LoginResponse(jwt, refreshToken.getToken());
         responseBody.setMessage("Logged in successfully!");
+        responseBody.setUser(UserMapper.mapToUserResponse(userOptional.get()));
         responseBody.setStatus(true);
 
         return ResponseEntity.ok(responseBody);
@@ -122,23 +125,23 @@ public class AuthController {
     }
 
     @GetMapping("/check-auth")
-    public ResponseEntity<GenericResponse<User>> checkAuth() {
-        if(authUtils == null) {
+    public ResponseEntity<?> checkAuth() {
+        if (authUtils == null) {
             throw new IllegalStateException("Something went wrong");
         }
         Optional<User> user = authUtils.loggedInUser();
-        GenericResponse<User> response = new GenericResponse<>();
 
         if (user.isEmpty()) {
+            GenericResponse<User> response = new GenericResponse<>();
             response.setStatus(false);
             response.setMessage("You are not logged in.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-
-        response.setStatus(true);
-        response.setMessage("You are logged in.");
-        response.setData(user.get());
-        return ResponseEntity.ok(response);
+        CheckAuthResponse checkAuthResponse = new CheckAuthResponse();
+        checkAuthResponse.setStatus(true);
+        checkAuthResponse.setMessage("You are logged in.");
+        checkAuthResponse.setUser(UserMapper.mapToUserResponse(user.get()));
+        return ResponseEntity.ok(checkAuthResponse);
     }
 
     @PostMapping("/logout")
