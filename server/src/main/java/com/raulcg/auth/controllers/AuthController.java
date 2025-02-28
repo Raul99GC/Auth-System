@@ -155,13 +155,12 @@ public class AuthController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        Cookie refreshTokenCookie = new Cookie("jwtToken", "");
+        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0);
         response.addCookie(refreshTokenCookie);
-
 
         return ResponseEntity.ok(new GenericResponse<>(null, "Logged out successfully", true));
     }
