@@ -13,6 +13,7 @@ import com.raulcg.auth.response.SignupResponse;
 import com.raulcg.auth.security.jwt.JwtUtils;
 import com.raulcg.auth.security.service.UserDetailsImpl;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
+import com.raulcg.auth.services.passwordResetToken.IPasswordResetTokenService;
 import com.raulcg.auth.services.refreshToken.IRefreshTokenService;
 import com.raulcg.auth.services.user.IUserService;
 import com.raulcg.auth.utils.AuthUtils;
@@ -40,13 +41,15 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final IRefreshTokenService refreshTokenService;
     private AuthUtils authUtils;
+    private final IPasswordResetTokenService passwordResetTokenService;
 
-    public AuthController(IUserService userService, IAccountValidationTokenService accountValidationTokenService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, IRefreshTokenService refreshTokenService) {
+    public AuthController(IUserService userService, IAccountValidationTokenService accountValidationTokenService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, IRefreshTokenService refreshTokenService, IPasswordResetTokenService passwordResetTokenService) {
         this.userService = userService;
         this.accountValidationTokenService = accountValidationTokenService;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.refreshTokenService = refreshTokenService;
+        this.passwordResetTokenService = passwordResetTokenService;
     }
 
     @Autowired
@@ -163,6 +166,13 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
 
         return ResponseEntity.ok(new GenericResponse<>(null, "Logged out successfully", true));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<GenericResponse<?>> changePassword(@RequestParam String email) {
+
+        passwordResetTokenService.generateRefreshToken(email);
+        return ResponseEntity.ok(new GenericResponse<>(null, "Password reset email sent", true));
     }
 
 }
