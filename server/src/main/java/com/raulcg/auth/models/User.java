@@ -84,6 +84,12 @@ public class User {
     @JsonIgnore
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Column(nullable = true)
+    @JsonIgnore
+    private Set<PasswordResetToken> passwordResetTokens = new HashSet<>();
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
