@@ -11,7 +11,7 @@ import com.raulcg.auth.repositories.RoleRepository;
 import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
-import com.raulcg.auth.services.email.EmailService;
+import com.raulcg.auth.services.email.IEmailService;
 import com.raulcg.auth.utils.OtpTokenGenerator;
 import com.raulcg.auth.utils.SecureTokensGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class UserService implements IUserService {
     private final IAccountValidationTokenService accountValidationTokenService;
 
 
-    private EmailService emailService;
+    private IEmailService emailService;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, SecureTokensGenerator secureTokensGenerator, PasswordEncoder passwordEncoder, OtpTokenGenerator otpTokenGenerator, IAccountValidationTokenService accountValidationTokenService) {
         this.userRepository = userRepository;
@@ -47,7 +47,7 @@ public class UserService implements IUserService {
     }
 
     @Autowired(required = false)
-    public void setEmailService(EmailService emailService) {
+    public void setEmailService(IEmailService emailService) {
         this.emailService = emailService;
     }
 
@@ -104,7 +104,7 @@ public class UserService implements IUserService {
 
     @Override
     public String getUserSecret(UUID userId) {
-        User user = userRepository.findById(userId) .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.getUserSecret();
     }
 
