@@ -36,12 +36,12 @@ public class EmailService implements IEmailService {
         } catch (MessagingException e) {
             //TODO: Implement exception handling with logging or something else
 
-            throw new EmailSendingException("No se pudo enviar el email de confirmación. "+ e.getMessage());
+            throw new EmailSendingException("No se pudo enviar el email de confirmación. " + e.getMessage());
         }
     }
 
     @Override
-    public void sendPasswordResetEmail(String to, String userName, String resetUrl)  {
+    public void sendPasswordResetEmail(String to, String userName, String resetUrl) {
 
         try {
             Context context = new Context();
@@ -51,13 +51,33 @@ public class EmailService implements IEmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("Confirm your email address");
+            helper.setSubject("Password Reset Request");
             helper.setText(emailContent, true);
             mailSender.send(message);
         } catch (MessagingException e) {
             //TODO: Implement exception handling with logging or something else
 
-            throw new EmailSendingException("No se pudo enviar el email de confirmación. "+ e.getMessage());
+            throw new EmailSendingException("No se pudo enviar el email de confirmación. " + e.getMessage());
         }
+    }
+
+    @Override
+    public void sendPasswordChangedEmail(String to, String username) {
+        try {
+            Context context = new Context();
+            context.setVariable("userName", username);
+            String emailContent = thymeleafEngine.process("password-changed-email", context);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject("Password Change Successful");
+            helper.setText(emailContent, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            //TODO: Implement exception handling with logging or something else
+
+            throw new EmailSendingException("No se pudo enviar el email de confirmación. " + e.getMessage());
+        }
+
     }
 }
