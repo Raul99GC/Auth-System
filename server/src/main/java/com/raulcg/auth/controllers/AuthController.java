@@ -6,6 +6,7 @@ import com.raulcg.auth.models.User;
 import com.raulcg.auth.requires.ActivateAccountRequest;
 import com.raulcg.auth.requires.CreateUserRequire;
 import com.raulcg.auth.requires.LoginRequest;
+import com.raulcg.auth.requires.ResetPasswordRequire;
 import com.raulcg.auth.response.CheckAuthResponse;
 import com.raulcg.auth.response.GenericResponse;
 import com.raulcg.auth.response.LoginResponse;
@@ -173,6 +174,13 @@ public class AuthController {
 
         passwordResetTokenService.generateRefreshToken(email);
         return ResponseEntity.ok(new GenericResponse<>(null, "Password reset email sent", true));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<GenericResponse<?>> resetPassword(@Validated @RequestBody ResetPasswordRequire resetPasswordRequire) {
+
+        passwordResetTokenService.resetPassword(resetPasswordRequire.getToken(), resetPasswordRequire.getPassword());
+        return ResponseEntity.ok(new GenericResponse<>(null, "Password reset successfully", true));
     }
 
 }
