@@ -1,13 +1,15 @@
 package com.raulcg.auth.services.user;
 
+import com.raulcg.auth.dtos.OAuthUserRegistrationDTO;
 import com.raulcg.auth.models.User;
 import com.raulcg.auth.requires.CreateUserRequire;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface IUserService {
     User RegisterUser(CreateUserRequire user);
+
+    User createUserByProvider(OAuthUserRegistrationDTO user);
 
     User createUser(User user);
 
@@ -15,5 +17,5 @@ public interface IUserService {
 
     Optional<User> findByEmail(String email);
 
-    String getUserSecret(UUID userId);
+    String getUserSecret(String email);
 }
