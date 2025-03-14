@@ -64,7 +64,7 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role", // nombre de la tabla de unión
             joinColumns = @JoinColumn(name = "user_id"), // columna que referencia a User
