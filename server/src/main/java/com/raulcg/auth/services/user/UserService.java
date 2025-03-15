@@ -1,5 +1,7 @@
 package com.raulcg.auth.services.user;
 
+import com.raulcg.auth.dtos.OAuthUserRegistrationDTO;
+import com.raulcg.auth.enums.Providers;
 import com.raulcg.auth.enums.UserRole;
 import com.raulcg.auth.exceptions.EmailAlreadyExistException;
 import com.raulcg.auth.exceptions.RoleNotFoundException;
@@ -21,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -54,7 +55,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public User RegisterUser(CreateUserRequire user) {
-        isUserExist(user);
+        isUserExist(user.getUsername(), user.getEmail());
 
         String encodePassword = passwordEncoder.encode(user.getPassword());
         String userSecret = secureTokensGenerator.generateUserSecret();
@@ -66,6 +67,7 @@ public class UserService implements IUserService {
         newUser.setLastName(user.getLastName());
         newUser.setUserSecret(userSecret);
         newUser.setRoles(Collections.singleton(defaultRole));
+        newUser.setProvider(Providers.DEFAULT);
 
         User savedUser = userRepository.save(newUser);
 
@@ -78,10 +80,31 @@ public class UserService implements IUserService {
         return savedUser;
     }
 
-    private void isUserExist(CreateUserRequire user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+    @Override
+    public User createUserByProvider(OAuthUserRegistrationDTO user) {
+        // ! here I can have a problem if a username is already exist and its the username of the provider
+        // TODO: fix this xd (maybe create a new user with a random username) idk
+        isUserExist(user.getUsername(), user.getEmail());
+
+        User newUser = new User();
+        newUser.setUsername(user.getUsername());
+        newUser.setEmail(user.getEmail());
+        newUser.setProvider(user.getProvider());
+        newUser.setEnabled(true);
+        newUser.setAccountNonLocked(true);
+        newUser.setUserSecret(secureTokensGenerator.generateUserSecret());
+
+        Role defaultRole = roleRepository.findByName(UserRole.USER)
+                .orElseThrow(() -> new RoleNotFoundException("Default role not found"));
+        newUser.setRoles(Collections.singleton(defaultRole));
+
+        return userRepository.save(newUser);
+    }
+
+    private void isUserExist(String username, String email) {
+        if (userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyExistException("Username already exist");
-        } else if (userRepository.existsByEmail(user.getEmail())) {
+        } else if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistException("Email already exist");
         }
     }
@@ -89,6 +112,7 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public User createUser(User user) {
+        isUserExist(user.getUsername(), user.getEmail());
         return userRepository.save(user);
     }
 
@@ -103,8 +127,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String getUserSecret(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+    public String getUserSecret(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.getUserSecret();
     }
 
