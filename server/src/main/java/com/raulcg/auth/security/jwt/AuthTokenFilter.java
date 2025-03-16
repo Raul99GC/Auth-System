@@ -1,5 +1,7 @@
 package com.raulcg.auth.security.jwt;
 
+import com.raulcg.auth.security.jwt.services.IJwtService;
+import com.raulcg.auth.security.jwt.services.JwtService;
 import com.raulcg.auth.security.service.UserDetailsServiceImpl;
 import com.raulcg.auth.services.user.IUserService;
 import jakarta.servlet.FilterChain;
@@ -18,17 +20,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-    private final JwtUtils jwtUtils;
+    private final IJwtService jwtService;
     private final IUserService userService;
 
-    public AuthTokenFilter(JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService, @Lazy IUserService userService) {
-        this.jwtUtils = jwtUtils;
+    public AuthTokenFilter(IJwtService jwtService, UserDetailsServiceImpl userDetailsService, @Lazy IUserService userService) {
+        this.jwtService = jwtService;
         this.userService = userService;
     }
 
@@ -38,14 +40,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null) {
 
-                String kid = jwtUtils.getKidFromToken(jwt);
+                Map<String, Object> claims = jwtService.getClaimsWithoutSignature(jwt);
+                String userSecret = userService.getUserSecret(claims.get("email").toString());
 
-                // Utilizar el 'kid' para obtener el secreto asociado al usuario desde la BD
-                String userSecret = userService.getUserSecret(UUID.fromString(kid));
-
-                if (jwtUtils.validateToken(jwt, userSecret)) {
-                    String sub = jwtUtils.getSubFromToken(jwt, userSecret);
-                    List<String> authorities = jwtUtils.getAuthorities(jwt, userSecret);
+                if (jwtService.validateToken(jwt, userSecret)) {
+                    String sub = jwtService.getSubFromToken(jwt, userSecret);
+                    List<String> authorities = jwtService.getAuthorities(jwt, userSecret);
 
                     // Create Authentication object
                     List<GrantedAuthority> authoritiesList = authorities.stream()
@@ -74,7 +74,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 }
             }
         } else {
-            return jwtUtils.getJwtFromHeader(request);
+            return jwtService.getJwtFromHeader(request);
         }
         return null;
     }
