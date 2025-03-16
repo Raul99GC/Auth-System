@@ -11,7 +11,7 @@ import com.raulcg.auth.response.CheckAuthResponse;
 import com.raulcg.auth.response.GenericResponse;
 import com.raulcg.auth.response.LoginResponse;
 import com.raulcg.auth.response.SignupResponse;
-import com.raulcg.auth.security.jwt.JwtUtils;
+import com.raulcg.auth.security.jwt.services.JwtService;
 import com.raulcg.auth.security.service.UserDetailsImpl;
 import com.raulcg.auth.services.accountValidationToken.IAccountValidationTokenService;
 import com.raulcg.auth.services.passwordResetToken.IPasswordResetTokenService;
@@ -39,16 +39,16 @@ public class AuthController {
     private final IUserService userService;
     private final IAccountValidationTokenService accountValidationTokenService;
     private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
     private final IRefreshTokenService refreshTokenService;
     private AuthUtils authUtils;
     private final IPasswordResetTokenService passwordResetTokenService;
 
-    public AuthController(IUserService userService, IAccountValidationTokenService accountValidationTokenService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, IRefreshTokenService refreshTokenService, IPasswordResetTokenService passwordResetTokenService) {
+    public AuthController(IUserService userService, IAccountValidationTokenService accountValidationTokenService, AuthenticationManager authenticationManager, JwtService jwtService, IRefreshTokenService refreshTokenService, IPasswordResetTokenService passwordResetTokenService) {
         this.userService = userService;
         this.accountValidationTokenService = accountValidationTokenService;
         this.authenticationManager = authenticationManager;
-        this.jwtUtils = jwtUtils;
+        this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.passwordResetTokenService = passwordResetTokenService;
     }
@@ -82,7 +82,7 @@ public class AuthController {
         // Get the user details
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
+        String jwt = jwtService.generateTokenFromUserDetails(userDetails);
 
         RefreshToken refreshToken = refreshTokenService.createToken(userOptional.get(), 60 * 60 * 24 * 7); // Expira en 7 dias
 
