@@ -84,7 +84,7 @@ public class AuthController {
 
         String jwt = jwtService.generateTokenFromUserDetails(userDetails);
 
-        RefreshToken refreshToken = refreshTokenService.createToken(userOptional.get(), 60 * 60 * 24 * 7); // Expira en 7 dias
+        RefreshToken refreshToken = refreshTokenService.createToken(userOptional.get(), 15); // Expira en 15 dias
 
         Cookie tokenCookie = new Cookie("jwtToken", jwt);
         tokenCookie.setHttpOnly(true);
