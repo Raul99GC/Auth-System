@@ -5,10 +5,12 @@ import com.raulcg.auth.enums.UserRole;
 import com.raulcg.auth.exceptions.EmailAlreadyExistException;
 import com.raulcg.auth.exceptions.UsernameAlreadyExistException;
 import com.raulcg.auth.mapper.UserDetailsMapper;
+import com.raulcg.auth.models.RefreshToken;
 import com.raulcg.auth.models.Role;
 import com.raulcg.auth.oauth2.OAuth2UserService;
 import com.raulcg.auth.security.jwt.services.IJwtService;
 import com.raulcg.auth.security.service.UserDetailsImpl;
+import com.raulcg.auth.services.refreshToken.IRefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,14 +33,16 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     private final OAuth2UserService oAuth2UserService;
     private final IJwtService jwtService;
     private final UserDetailsMapper userDetailsMapper;
+    private final IRefreshTokenService refreshTokenService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    public OAuth2LoginSuccessHandler(OAuth2UserService oAuth2UserService, IJwtService jwtService, UserDetailsMapper userDetailsMapper) {
+    public OAuth2LoginSuccessHandler(OAuth2UserService oAuth2UserService, IJwtService jwtService, UserDetailsMapper userDetailsMapper, IRefreshTokenService refreshTokenService) {
         this.oAuth2UserService = oAuth2UserService;
         this.jwtService = jwtService;
         this.userDetailsMapper = userDetailsMapper;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -86,9 +90,12 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
         // create a jwt token
         String jwtToken = jwtService.generateTokenFromUserDetails(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createToken(procesorUserResult.getUser(), 15);
+
 
         targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/login")
                 .queryParam("token", jwtToken)
+                .queryParam("refreshToken", refreshToken.getToken())
                 .build().toUriString();
 
         this.setDefaultTargetUrl(targetUrl);
