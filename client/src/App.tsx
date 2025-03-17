@@ -1,15 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect } from 'react';
 import './App.css'
-import AuthPage from './screens/Auth'
+import Navigation from './navigation/Navigation'
+import { useAuthStore } from './store/user-storage';
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return (
     <>
-      <AuthPage />
+      <Navigation />
     </>
   )
 }

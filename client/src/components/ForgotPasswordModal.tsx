@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/user-storage"
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -20,6 +21,7 @@ interface ForgotPasswordModalProps {
 
 export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProps) {
   const { toast } = useToast()
+  const { forgotPassword } = useAuthStore()
 
   const forgotPasswordForm = useForm<ForgotPasswordForm>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -29,18 +31,14 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
   })
 
   const onSubmit = async (data: ForgotPasswordForm) => {
-    console.log("Forgot password email:", data.email)
-
-    // Simulación de una respuesta del servidor (50% de probabilidad de éxito)
-    const serverResponse = Math.random() < 0.5
-
-    if (serverResponse) {
+    try {
+      await forgotPassword(data.email)
       toast({
         title: "Password Reset Email Sent",
         description: "Please check your email for further instructions.",
       })
       onClose()
-    } else {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to send password reset email. Please try again.",
