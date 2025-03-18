@@ -20,7 +20,7 @@ public class AuthUtils {
     public Optional<User> loggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        return userRepository.findByUsername(username);
+        return userRepository.findByEmail(username);
     }
 
 }
