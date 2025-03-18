@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import './App.css'
 import Navigation from './navigation/Navigation'
-import { useAuthStore } from './store/user-storage';
+import { useAuthStore } from './store/auth-storage';
 
 function App() {
 

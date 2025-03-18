@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
-import { useAuthStore } from "@/store/user-storage"
+import { useAuthStore } from "@/store/auth-storage"
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),

@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/user-storage";
+import { useAuthStore } from "@/store/auth-storage";
 import { NavItem } from "./NavItem";
 import { AvatarMenu } from "./AvatarMenu";
 

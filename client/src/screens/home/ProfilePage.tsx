@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuthStore } from "@/store/user-storage"
+import { useAuthStore } from "@/store/auth-storage"
 
 interface Profile {
   username: string
@@ -73,7 +73,7 @@ export default function ProfilePage() {
         title: "Profile Updated",
         description: "Your profile has been updated successfully.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",

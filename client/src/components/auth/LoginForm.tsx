@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import api from '@/utils/api';
 import { loginSchema } from '@/types/authScheemas';
 
-import { useAuthStore } from "@/store/user-storage";
+import { useAuthStore } from "@/store/auth-storage";
 import { useEffect } from 'react';
 
 type LoginForm = z.infer<typeof loginSchema>;

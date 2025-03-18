@@ -5,7 +5,7 @@ import Error404Page from '@/screens/Error404Page';
 import ProfilePage from '@/screens/home/ProfilePage';
 import AdminPage from "@/screens/dashboard/admin/AdminPage";
 import SuperAdminPage from "@/screens/dashboard/superAdmin/SuperAdminPage";
-import { useAuthStore } from "@/store/user-storage"; // Ajusta la ruta a donde tengas definido el store
+import { useAuthStore } from "@/store/auth-storage"; // Ajusta la ruta a donde tengas definido el store
 import { NavigationHeader } from "@/components/home/NavigationHeader";
 
 type Role = "ADMIN" | "SUPER_ADMIN" | "USER"; // ejemplo de un tipo de rol

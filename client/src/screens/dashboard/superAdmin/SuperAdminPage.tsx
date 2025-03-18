@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router"
-import { useAuthStore } from "@/store/user-storage"
+import { useAuthStore } from "@/store/auth-storage"
 
 export default function SuperAdminPage() {
   const { hasRole } = useAuthStore()

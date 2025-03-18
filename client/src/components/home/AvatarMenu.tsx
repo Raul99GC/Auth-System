@@ -3,7 +3,7 @@
 import { LogOut } from "lucide-react"
 import { useNavigate } from "react-router"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useAuthStore } from "@/store/user-storage"
+import { useAuthStore } from "@/store/auth-storage"
 
 export function AvatarMenu() {
   const { user, logoutUser } = useAuthStore();
