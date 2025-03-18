@@ -9,6 +9,7 @@ import com.raulcg.auth.exceptions.UserNotFoundException;
 import com.raulcg.auth.exceptions.UsernameAlreadyExistException;
 import com.raulcg.auth.models.Role;
 import com.raulcg.auth.models.User;
+import com.raulcg.auth.repositories.EditUserRequest;
 import com.raulcg.auth.repositories.RoleRepository;
 import com.raulcg.auth.repositories.UserRepository;
 import com.raulcg.auth.requires.CreateUserRequire;
@@ -130,6 +131,19 @@ public class UserService implements IUserService {
     public String getUserSecret(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.getUserSecret();
+    }
+
+    @Transactional
+    @Override
+    public void editUser(EditUserRequest request, String email) {
+        User userSaved = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found papu"));
+        userSaved.setFirstName(request.getFirstName());
+        userSaved.setLastName(request.getLastName());
+        if(userRepository.existsByUsername(request.getUsername()) && !userSaved.getUsername().equals(request.getUsername())) {
+            throw new UsernameAlreadyExistException("Username already exist");
+        }
+        userSaved.setUsername(request.getUsername());
+        userRepository.save(userSaved);
     }
 
 }
