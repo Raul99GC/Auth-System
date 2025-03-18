@@ -68,20 +68,17 @@ public class JwtService implements IJwtService {
     @Override
     public String generateTokenFromUserDetails(UserDetailsImpl userDetails) {
         String email = userDetails.getEmail();
-        String username = userDetails.getUsername();
         List<String> authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         JwtBuilder token = Jwts.builder()
                 .header().keyId(String.valueOf(userDetails.getId())).and()
-                .subject(username)
+                .subject(email)
                 .claim("authorities", authorities)
                 .issuedAt(new java.util.Date())
                 .expiration(new java.util.Date((new java.util.Date().getTime() + jwtExpirationMs))) // 2 hrs
                 .signWith(key(userDetails.getUserSecret()));
-
-        if (email != null) token.claim("email", email);
 
         return token.compact();
     }
