@@ -1,7 +1,6 @@
 package com.raulcg.auth.security.jwt;
 
 import com.raulcg.auth.security.jwt.services.IJwtService;
-import com.raulcg.auth.security.jwt.services.JwtService;
 import com.raulcg.auth.security.service.UserDetailsServiceImpl;
 import com.raulcg.auth.services.user.IUserService;
 import jakarta.servlet.FilterChain;
@@ -41,7 +40,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (jwt != null) {
 
                 Map<String, Object> claims = jwtService.getClaimsWithoutSignature(jwt);
-                String userSecret = userService.getUserSecret(claims.get("email").toString());
+                String userSecret = userService.getUserSecret(claims.get("sub").toString());
 
                 if (jwtService.validateToken(jwt, userSecret)) {
                     String sub = jwtService.getSubFromToken(jwt, userSecret);
